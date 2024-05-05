@@ -15,15 +15,17 @@ window.title("Добро пожаловать в приложение maXim")
 window.geometry('1900x940+0+50')
 window.configure(background="#B2DFDB", )
 # window.attributes("-fullscreen", True)
-style = ttk.Style()
-style.theme_use("clam")
-style.map("Treeview")
+
+
 frame2 = tk.Frame(window, width=1900, relief=tk.SUNKEN, borderwidth=1)
 frame2.pack(fill=tk.BOTH, side=tk.BOTTOM, expand=True, padx=6, pady=6)
 frame1 = tk.Frame(window, width=1600, relief=tk.SUNKEN, borderwidth=1, background="#B2DFDB")
 frame1.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=6, pady=3)
 frame3 = tk.Frame(window, width=300, relief=tk.SUNKEN, borderwidth=1)
 frame3.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=6, pady=6)
+frame4 = tk.Frame(window, width=1900, relief=tk.SUNKEN, borderwidth=1)
+frame4.pack(fill=tk.BOTH, side=tk.BOTTOM, expand=True, padx=6, pady=6)
+
 # Многострочное тектовое окно
 l1 = Label(frame3, text="Добавить комментарий к договору")
 l1.pack(side=tk.TOP)
@@ -101,45 +103,6 @@ txt_sum = Entry(frame1, width=30)
 txt_sum.grid(column=1, row=14)
 txt_number = Entry(frame1, width=30)
 txt_number.grid(column=0, row=9)
-# Отображение элементов на окне frame2
-tree = ttk.Treeview(frame2, columns=("c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "c13"),
-                    show='headings')
-tree.text = Entry()
-tree.grid(column=0, row=0)
-tree.column("#1", anchor=tk.CENTER)
-tree.heading("#1", text="Тип договора")
-tree.column("#2", anchor=tk.CENTER)
-tree.heading("#2", text="Поставщик")
-tree.column("#3", anchor=tk.CENTER)
-tree.heading("#3", text="Поставщик(полное)")
-tree.column("#4", anchor=tk.CENTER)
-tree.heading("#4", text="Должность")
-tree.column("#5", anchor=tk.CENTER)
-tree.heading("#5", text="ФИО")
-tree.column("#6", anchor=tk.CENTER)
-tree.heading("#6", text="ФИО(полное)")
-tree.column("#7", anchor=tk.CENTER)
-tree.heading("#7", text="Реквизиты")
-tree.column("#8", anchor=tk.CENTER)
-tree.heading("#8", text="Номер договора")
-tree.column("#9", anchor=tk.CENTER)
-tree.heading("#9", text="Объект")
-tree.column("#10", anchor=tk.CENTER)
-tree.heading("#10", text="Объект(полное)")
-tree.column("#11", anchor=tk.CENTER)
-tree.heading("#11", text="Сумма договора")
-tree.column("#12", anchor=tk.CENTER)
-tree.heading("#12", text="Город")
-tree.column("#13", anchor=tk.CENTER)
-tree.heading("#13", text="Дата")
-tree.pack(side=LEFT)
-for i in tree['columns']:
-    tree.column(i, minwidth=50, width=145, stretch=NO)
-tree.config(height=28)
-# Прокрутка таблицы в frame2
-scroll_y = tk.Scrollbar(frame2, orient=tk.VERTICAL, command=tree.yview)
-scroll_y.pack(side=RIGHT, expand=True, fill="y")
-tree.configure(yscrollcommand=scroll_y.set)
 
 
 # Функция, после заполнеия текстовых полей, при нажатии на кнопку, добавление записи в SQLite
@@ -178,8 +141,56 @@ btn3 = Button(frame1, text="Закрыть приложение", command=close_
 btn3.grid(column=1, row=1)
 
 
-# # Функция, выводит на экран таблицу базы данных в отдельном окне
-def secondWindow():
+# Отображение элементов на окне frame2
+
+def treeWindow():
+    tree = ttk.Treeview(frame2, columns=("c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "c13"),
+                        show='headings')
+    tree.text = Entry()
+    tree.grid(column=0, row=0)
+    tree.column("#1", anchor=tk.CENTER)
+    tree.heading("#1", text="Тип договора")
+    tree.column("#2", anchor=tk.CENTER)
+    tree.heading("#2", text="Поставщик")
+    tree.column("#3", anchor=tk.CENTER)
+    tree.heading("#3", text="Поставщик(полное)")
+    tree.column("#4", anchor=tk.CENTER)
+    tree.heading("#4", text="Должность")
+    tree.column("#5", anchor=tk.CENTER)
+    tree.heading("#5", text="ФИО")
+    tree.column("#6", anchor=tk.CENTER)
+    tree.heading("#6", text="ФИО(полное)")
+    tree.column("#7", anchor=tk.CENTER)
+    tree.heading("#7", text="Реквизиты")
+    tree.column("#8", anchor=tk.CENTER)
+    tree.heading("#8", text="Номер договора")
+    tree.column("#9", anchor=tk.CENTER)
+    tree.heading("#9", text="Объект")
+    tree.column("#10", anchor=tk.CENTER)
+    tree.heading("#10", text="Объект(полное)")
+    tree.column("#11", anchor=tk.CENTER)
+    tree.heading("#11", text="Сумма договора")
+    tree.column("#12", anchor=tk.CENTER)
+    tree.heading("#12", text="Город")
+    tree.column("#13", anchor=tk.CENTER)
+    tree.heading("#13", text="Дата")
+    tree.pack(side=LEFT)
+    for i in tree['columns']:
+        tree.column(i, minwidth=50, width=145, stretch=NO)
+    tree.config(height=28)
+    # Прокрутка таблицы в frame2
+    scroll_y = tk.Scrollbar(frame2, orient=tk.VERTICAL, command=tree.yview)
+    scroll_y.pack(side=RIGHT, expand=True, fill="y")
+    tree.configure(yscrollcommand=scroll_y.set)
+
+    style = ttk.Style()
+    style.theme_use("clam")
+    style.map("Treeview")
+    secondWindow(tree)
+
+
+# Функция, выводит на экран таблицу базы данных в отдельном окне
+def secondWindow(tree):
     # second = Toplevel(window)
     # second.title("База данных")
     txt_sum.delete(0, END)
@@ -247,11 +258,67 @@ def secondWindow():
     txt1.delete(0, END)
 
 
-b1 = tk.Button(frame1, text="   Вывести на экран    ", command=secondWindow, width=30)
+b1 = tk.Button(frame1, text="   Вывести на экран    ", command=treeWindow, width=30)
 b1.grid(column=0, row=14)
 
 
-# # Функция, после точного ввода имени поставщика, поиск в БД столбца и вывод строки заполением текстовых полей
+# Сохранение файла xlsx и вывод на печать
+def saveExcel(tree):
+    workbook = load_workbook(filename='XLSX_TO_PRINT/Table1.xlsx')
+    sheet = workbook['Sheet1']
+    # Удаляем все строки, кроме заголовков
+    sheet.delete_rows(2, sheet.max_row - 1)
+    workbook.save(filename='XLSX_TO_PRINT/Table1.xlsx')
+    # sheet.delete_rows(idx=2, amount=15)
+    for row_id in tree.get_children():
+        row = tree.item(row_id)['values']
+        sheet.append(row)
+    workbook.save(filename='XLSX_TO_PRINT/Table1.xlsx')
+
+    file_path = filedialog.askopenfilename(title="Файл", initialdir="XLSX_TO_PRINT/",
+                                           filetypes=[("Text File", '*.xlsx'), ("All files", "*.*")])
+    print("Selected File:", file_path)
+    os.startfile(file_path)
+
+
+btnSqlToXlsx = Button(frame1, text="На печать (отчет)", command=saveExcel, width=30)
+btnSqlToXlsx.grid(column=1, row=1)
+
+
+def windowNew():
+    tree2 = ttk.Treeview(frame2, columns=("c1", "c2", "c3", "c4", "c5"),
+                        show='headings')
+    tree2.text = Entry()
+    tree2.grid(column=0, row=0)
+    tree2.column("#1", anchor=tk.CENTER)
+    tree2.heading("#1", text="Тип договора")
+    tree2.column("#2", anchor=tk.CENTER)
+    tree2.heading("#2", text="Поставщик")
+    tree2.column("#3", anchor=tk.CENTER)
+    tree2.heading("#3", text="Номер договора")
+    tree2.column("#4", anchor=tk.CENTER)
+    tree2.heading("#4", text="Объект")
+    tree2.column("#5", anchor=tk.CENTER)
+    tree2.heading("#5", text="Сумма договора")
+    tree2.pack(side=LEFT)
+    for i in tree2['columns']:
+        tree2.column(i, minwidth=50, width=145, stretch=NO)
+    tree2.config(height=28)
+    # Прокрутка таблицы в frame2
+    scroll_y = tk.Scrollbar(frame2, orient=tk.VERTICAL, command=tree.yview)
+    scroll_y.pack(side=RIGHT, expand=True, fill="y")
+    tree2.configure(yscrollcommand=scroll_y.set)
+
+    style = ttk.Style()
+    style.theme_use("default")
+    style.map("Treeview")
+
+
+btn_new = Button(frame1, text="(отчет new)", command=lambda: windowNew, width=30)
+btn_new.grid(column=1, row=3)
+
+
+# # Функция, после точного ввода номера договора, поиск в БД столбца и вывод строки заполением текстовых полей
 def searchDb():
     d = txt_number.get()
     conn = sqlite3.connect('sqlite_python.db')
@@ -414,7 +481,6 @@ btnSql3 = Button(frame1, text="На печать (форму)", command=workSql,
 btnSql3.grid(column=0, row=1)
 
 
-# Функция, после точного ввода имени поставщика, поиск в БД столбца и вывод строки заполением текстовых полей
 def scrollDb():
     conn = sqlite3.connect('sqlite_python.db')
     c = conn.cursor()
@@ -461,24 +527,5 @@ typeCh.grid(column=0, row=5)
 typeCh.current()
 typeCh.bind("<<ComboboxSelected>>", selected2)
 
-
-# Сохранение файла xlsx и вывод на печать
-def saveExcel():
-    workbook = load_workbook(filename='XLSX_TO_PRINT/Table1.xlsx')
-    sheet = workbook['Sheet1']
-    sheet.delete_rows(idx=2, amount=15)
-    for row_id in tree.get_children():
-        row = tree.item(row_id)['values']
-        sheet.append(row)
-    workbook.save(filename='XLSX_TO_PRINT/Table1.xlsx')
-
-    file_path = filedialog.askopenfilename(title="Файл", initialdir="XLSX_TO_PRINT/",
-                                           filetypes=[("Text File", '*.xlsx'), ("All files", "*.*")])
-    print("Selected File:", file_path)
-    os.startfile(file_path)
-
-
-btnSqlToXlsx = Button(frame1, text="На печать (отчет)", command=saveExcel, width=30)
-btnSqlToXlsx.grid(column=1, row=1)
 
 window.mainloop()
