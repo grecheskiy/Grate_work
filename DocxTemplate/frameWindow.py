@@ -429,22 +429,12 @@ def scrollDb():
     return list(set(clist1))  # способ, с помощью которого дубликаты удаляются из списка
 
 
-def selected1(event):
-    # получаем выделенный элемент
-    selection1 = str(clientCh.get()).replace('{', '').replace('}', '')
-    txt_search.insert(0, selection1)
-    clientCh.set('')
-
-
 # Combobox creation
 n2 = tk.StringVar()
 clientCh = ttk.Combobox(frame1, width=30, textvariable=n2)
 
-# Adding combobox drop down list
-clientCh['values'] = scrollDb()
-clientCh.grid(column=0, row=7)
-clientCh.current()
-clientCh.bind("<<ComboboxSelected>>", selected1)
+n3 = tk.StringVar()
+typeCh = ttk.Combobox(frame1, width=30, textvariable=n3)
 
 
 def selected2(event):
@@ -454,8 +444,20 @@ def selected2(event):
     typeCh.set('')
 
 
-n3 = tk.StringVar()
-typeCh = ttk.Combobox(frame1, width=30, textvariable=n3)
+def selected1(event):
+    # получаем выделенный элемент
+    selection1 = str(clientCh.get()).replace('{', '').replace('}', '')
+    txt_search.insert(0, selection1)
+    clientCh.set('')
+
+
+# Adding combobox drop down list
+clientCh['values'] = scrollDb()
+clientCh.grid(column=0, row=7)
+clientCh.current()
+clientCh.bind("<<ComboboxSelected>>", selected1)
+
+
 typeCh['values'] = ["Договор поставки", "Договор аренды", "Договор работ"]
 typeCh.grid(column=0, row=5)
 typeCh.current()
