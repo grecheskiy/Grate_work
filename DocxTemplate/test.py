@@ -3,7 +3,7 @@ import math
 
 num = float(input("Enter number: "))
 n = math.trunc(num)
-print(n)
+# print(n)
 
 
 def numwords():
@@ -11,9 +11,11 @@ def numwords():
 
 
 number = str(numwords())
-print(number)
+# print(number)
 
 
 if "." in str(num):
-    nn = str(num).split(".")[-1]
-    print(nn)
+    cop = str(num).split(".")[-1]
+    # print(nn)
+
+    print(f"{number} рублей {cop} копеек")
