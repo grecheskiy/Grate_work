@@ -3,7 +3,6 @@ import os
 import sqlite3db
 from tkinter import filedialog
 from openpyxl import load_workbook
-from openpyxl.styles import Alignment
 from docxtpl import DocxTemplate
 from tkinter import *
 from tkinter import ttk
@@ -170,11 +169,11 @@ class GrateWindow:
         for i in self.tree2['columns']:
             self.tree2.column(i, minwidth=100, width=310, stretch=NO)
         self.tree2.config(height=11)
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.map("Treeview")
-        style.configure('Treeview', rowheight=50)  # Расширить строку
-        style.configure('Treeview.Heading', background="PowderBlue")
+        style2 = ttk.Style()
+        style2.theme_use("clam")
+        style2.map("Treeview")
+        style2.configure('Treeview.Heading', background="PowderBlue")
+        # style2.configure('Treeview', rowheight=50)  # Расширить строку
         # Прокрутка таблицы в frame2
         scroll_y = tk.Scrollbar(self.frame2, orient=tk.VERTICAL, command=self.tree2.yview)
         scroll_y.pack(side=RIGHT, expand=True, fill="y")
