@@ -3,6 +3,7 @@ import os
 import sqlite3db
 from tkinter import filedialog
 from openpyxl import load_workbook
+from openpyxl.styles import Alignment
 from docxtpl import DocxTemplate
 from tkinter import *
 from tkinter import ttk
@@ -168,10 +169,12 @@ class GrateWindow:
         self.tree2.pack(side=LEFT)
         for i in self.tree2['columns']:
             self.tree2.column(i, minwidth=100, width=310, stretch=NO)
-        self.tree2.config(height=28)
+        self.tree2.config(height=11)
         style = ttk.Style()
-        style.theme_use("default")
+        style.theme_use("clam")
         style.map("Treeview")
+        style.configure('Treeview', rowheight=50)  # Расширить строку
+        style.configure('Treeview.Heading', background="PowderBlue")
         # Прокрутка таблицы в frame2
         scroll_y = tk.Scrollbar(self.frame2, orient=tk.VERTICAL, command=self.tree2.yview)
         scroll_y.pack(side=RIGHT, expand=True, fill="y")
@@ -196,7 +199,8 @@ class GrateWindow:
             for row2 in rows2:
                 # print(row2)
                 self.txt_sum.insert(0, row2)
-                self.tree2.insert("", tk.END, values=row2)
+                self.tree2.insert("", tk.END, tags=['t2'], values=('', '', '', 'Общая сумма:', row2))
+                self.tree2.tag_configure('t2', background='PowderBlue')
             con1.close()
             con2.close()
 
@@ -312,6 +316,7 @@ class GrateWindow:
         style = ttk.Style()
         style.theme_use("clam")
         style.map("Treeview")
+        style.configure('Treeview.Heading', background="PowderBlue")
         # Прокрутка таблицы в frame2
         scroll_y = tk.Scrollbar(self.frame2, orient=tk.VERTICAL, command=self.tree.yview)
         scroll_y.pack(side=RIGHT, expand=True, fill="y")
@@ -339,9 +344,13 @@ class GrateWindow:
             for row2 in rows2:
                 # print(row2)
                 self.txt_sum.insert(0, row2)
-                self.tree.insert("", tk.END, values=row2)
+                self.tree.insert("", tk.END, tags=['t1'], values=('', '', '', '', '', '', '', '', '', 'Общая сумма:', row2))
+                self.tree.tag_configure('t1', background='PowderBlue')
             con1.close()
             con2.close()
+
+            # tree.tag_configure("row2", background="red")
+            # tree.item("I001", tags=("row2",))
         else:
             if not x_client1 or not y_typedoc:
                 con1 = sqlite3.connect("sqlite_python.db")
@@ -359,7 +368,8 @@ class GrateWindow:
                 for row2 in rows2:
                     # print(row2)
                     self.txt_sum.insert(0, row2)
-                    self.tree.insert("", tk.END, values=row2)
+                    self.tree.insert("", tk.END, tags=['t1'], values=('', '', '', '', '', '', '', '', '', 'Общая сумма:', row2))
+                    self.tree.tag_configure('t1', background='PowderBlue')
                 con1.close()
                 con2.close()
             else:
@@ -378,7 +388,8 @@ class GrateWindow:
                 for row2 in rows2:
                     # print(row2)
                     self.txt_sum.insert(0, row2)
-                    self.tree.insert("", tk.END, values=row2)
+                    self.tree.insert("", tk.END, tags=['t1'], values=('', '', '', '', '', '', '', '', '', 'Общая сумма:', row2))
+                    self.tree.tag_configure('t1', background='PowderBlue')
                 con1.close()
                 con2.close()
         self.txt_search.delete(0, END)
