@@ -8,11 +8,14 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 import sqlite3
+from num2words import num2words
+import math
 
 
 class GrateWindow:
     def __init__(self, window):
         # Создание GUI приложения на Tkinter
+        self.tree2 = None
         self.typeCh = None
         self.clientCh = None
         self.selection1 = None
@@ -35,7 +38,8 @@ class GrateWindow:
         self.t1 = tk.Text(self.frame3, width=40, height=19)
         self.t1.pack(side=tk.BOTTOM)
         # Отображение элементов на окне frame1
-        lbl0 = Label(self.frame1, text="Заполните все поля для загрузки в форму", font=("Arial Bold", 12), background="#B2DFDB")
+        lbl0 = Label(self.frame1, text="Заполните все поля для загрузки в форму", font=("Arial Bold", 12),
+                     background="#B2DFDB")
         lbl0.grid(column=3, row=1)
         lbl1 = Label(self.frame1, text='Тип договора', background="#B2DFDB")
         lbl1.grid(column=2, row=2)
@@ -122,8 +126,153 @@ class GrateWindow:
         btn_clear.grid(column=2, row=1)
         btn_sql_3 = Button(self.frame1, text="На печать (форму)", command=self.workSql, width=30)
         btn_sql_3.grid(column=0, row=1)
+        btn_table2 = Button(self.frame1, text="Короткий отчет (на экран)", command=self.table2, width=30)
+        btn_table2.grid(column=1, row=11)
         self.scroll()
 
+    def numerWords(self):
+        cop2 = 0
+        number = float(self.txt11.get())
+        n = math.trunc(number)
+        number_text = str(num2words(n, lang='ru'))
+        if "." in str(number):
+            cop = str(number).split(".")[-1]
+            if "0" in cop:
+                cop2 = cop
+            else:
+                cop2 = cop + "0"
+        result = f"{number_text} рублей {cop2} копеек"
+        return result
+
+    def table2(self):
+        for widget in self.frame2.winfo_children():
+            widget.destroy()
+        # Отображение элементов на окне frame2
+        self.tree2 = ttk.Treeview(self.frame2,
+                                  columns=("c1", "c2", "c3", "c4", "c5", "c6"), show='headings')
+        self.tree2.text = Entry()
+        # self.tree.grid(column=0, row=0)
+        self.tree2.column("#1", anchor=tk.CENTER)
+        self.tree2.heading("#1", text="Тип договора")
+        self.tree2.column("#2", anchor=tk.CENTER)
+        self.tree2.heading("#2", text="Поставщик")
+        self.tree2.column("#3", anchor=tk.CENTER)
+        self.tree2.heading("#3", text="Реквизиты")
+        self.tree2.column("#4", anchor=tk.CENTER)
+        self.tree2.heading("#4", text="Номер договора")
+        self.tree2.column("#5", anchor=tk.CENTER)
+        self.tree2.heading("#5", text="Сумма договора")
+        self.tree2.column("#6", anchor=tk.CENTER)
+        self.tree2.heading("#6", text="Комментарии")
+
+        self.tree2.pack(side=LEFT)
+        for i in self.tree2['columns']:
+            self.tree2.column(i, minwidth=100, width=310, stretch=NO)
+        self.tree2.config(height=28)
+        style = ttk.Style()
+        style.theme_use("default")
+        style.map("Treeview")
+        # Прокрутка таблицы в frame2
+        scroll_y = tk.Scrollbar(self.frame2, orient=tk.VERTICAL, command=self.tree2.yview)
+        scroll_y.pack(side=RIGHT, expand=True, fill="y")
+        self.tree2.configure(yscrollcommand=scroll_y.set)
+        self.txt_sum.delete(0, END)
+        x_client1 = self.txt_search.get()
+        y_typedoc = self.txt1.get()
+        if not x_client1 and not y_typedoc:
+            con1 = sqlite3.connect("sqlite_python.db")
+            cur1 = con1.cursor()
+            cur1.execute('''SELECT ProgramFin.idArt, ProgramFin.client1, ProgramFin.client2, ProgramFin.dog, 
+            ProgramFin.price, ProgramFin2.commitM FROM ProgramFin JOIN ProgramFin2 
+            ON ProgramFin.dog = ProgramFin2.dog;''')
+            rows = cur1.fetchall()
+            con2 = sqlite3.connect("sqlite_python.db")
+            cur2 = con2.cursor()
+            cur2.execute('''SELECT SUM(price) FROM ProgramFin''')
+            rows2 = cur2.fetchall()
+            for row1 in rows:
+                # print(row1)
+                self.tree2.insert("", tk.END, values=row1)
+            for row2 in rows2:
+                # print(row2)
+                self.txt_sum.insert(0, row2)
+                self.tree2.insert("", tk.END, values=row2)
+            con1.close()
+            con2.close()
+
+    def selected1(self, event):
+        # получаем выделенный элемент
+        self.selection1 = str(self.clientCh.get()).replace('{', '').replace('}', '')
+        self.txt_search.insert(0, self.selection1)
+        self.clientCh.set('')
+
+    def selected2(self, event):
+        # получаем выделенный элемент
+        self.selection2 = str(self.typeCh.get())
+        self.txt1.insert(0, self.selection2)
+        self.typeCh.set('')
+
+    def scroll(self):
+        # Combobox creation
+        n2 = tk.StringVar()
+        self.clientCh = ttk.Combobox(self.frame1, width=30, textvariable=n2)
+        # Adding combobox drop down list
+        self.clientCh['values'] = self.scrollDb()
+        self.clientCh.grid(column=0, row=7)
+        self.clientCh.current()
+        self.clientCh.bind("<<ComboboxSelected>>", self.selected1)
+        # Adding combobox drop down list
+        n3 = tk.StringVar()
+        self.typeCh = ttk.Combobox(self.frame1, width=30, textvariable=n3)
+        self.typeCh['values'] = ["Договор поставки", "Договор аренды", "Договор работ"]
+        self.typeCh.grid(column=0, row=5)
+        self.typeCh.current()
+        self.typeCh.bind("<<ComboboxSelected>>", self.selected2)
+
+    # Функция, после точного ввода имени поставщика, поиск в БД столбца и вывод строки заполением текстовых полей
+    def scrollDb(self):
+        conn = sqlite3.connect('sqlite_python.db')
+        c = conn.cursor()
+        c.execute('''SELECT client1 FROM ProgramFin''')
+        rows = c.fetchall()
+        clist1 = []
+        for row in rows:
+            clist1.append(row)
+        # print(clist1)
+        # print(len(clist1))
+        conn.close()
+        return list(set(clist1))  # способ, с помощью которого дубликаты удаляются из списка
+
+    # Функция, после заполнеия текстовых полей, при нажатии на кнопку, добавление записи в SQLite
+    def dataSqlite(self):
+        s1 = self.txt1.get()
+        s2 = self.txt2.get()
+        s3 = self.txt3.get()
+        s4 = self.txt4.get()
+        s5 = self.txt5.get()
+        s6 = self.txt6.get()
+        s7 = self.txt7.get()
+        s8 = self.txt8.get()
+        s9 = self.txt9.get()
+        s10 = self.txt10.get()
+        s11 = self.txt11.get()
+        s12 = self.txt12.get()
+        s13 = self.txt13.get()
+        s14 = self.t1.get("1.0", tk.END)
+        if not s8:
+            print("Empty Variable")
+        else:
+            sqlite3db.insert_varible_into_table(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13)
+            sqlite3db.insert_varible_into_table2(s8, s14)
+
+    # Кнопка закрытия приложения
+    def close_window(self):
+        self.window.destroy()
+
+    # # Функция, выводит на экран таблицу базы данных в отдельном окне
+    def secondWindow(self):
+        for widget in self.frame2.winfo_children():
+            widget.destroy()
         # Отображение элементов на окне frame2
         self.tree = ttk.Treeview(self.frame2,
                                  columns=("c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8",
@@ -167,70 +316,12 @@ class GrateWindow:
         scroll_y = tk.Scrollbar(self.frame2, orient=tk.VERTICAL, command=self.tree.yview)
         scroll_y.pack(side=RIGHT, expand=True, fill="y")
         self.tree.configure(yscrollcommand=scroll_y.set)
-
-    def selected1(self, event):
-        # получаем выделенный элемент
-        self.selection1 = str(self.clientCh.get()).replace('{', '').replace('}', '')
-        self.txt_search.insert(0, self.selection1)
-        self.clientCh.set('')
-
-    def selected2(self, event):
-        # получаем выделенный элемент
-        self.selection2 = str(self.typeCh.get())
-        self.txt1.insert(0, self.selection2)
-        self.typeCh.set('')
-        
-    def scroll(self):
-        # Combobox creation
-        n2 = tk.StringVar()
-        self.clientCh = ttk.Combobox(self.frame1, width=30, textvariable=n2)
-        # Adding combobox drop down list
-        self.clientCh['values'] = self.scrollDb()
-        self.clientCh.grid(column=0, row=7)
-        self.clientCh.current()
-        self.clientCh.bind("<<ComboboxSelected>>", self.selected1)
-        # Adding combobox drop down list
-        n3 = tk.StringVar()
-        self.typeCh = ttk.Combobox(self.frame1, width=30, textvariable=n3)
-        self.typeCh['values'] = ["Договор поставки", "Договор аренды", "Договор работ"]
-        self.typeCh.grid(column=0, row=5)
-        self.typeCh.current()
-        self.typeCh.bind("<<ComboboxSelected>>", self.selected2)
-
-    # Функция, после заполнеия текстовых полей, при нажатии на кнопку, добавление записи в SQLite
-    def dataSqlite(self):
-        s1 = self.txt1.get()
-        s2 = self.txt2.get()
-        s3 = self.txt3.get()
-        s4 = self.txt4.get()
-        s5 = self.txt5.get()
-        s6 = self.txt6.get()
-        s7 = self.txt7.get()
-        s8 = self.txt8.get()
-        s9 = self.txt9.get()
-        s10 = self.txt10.get()
-        s11 = self.txt11.get()
-        s12 = self.txt12.get()
-        s13 = self.txt13.get()
-        s14 = self.t1.get("1.0", tk.END)
-        if not s8:
-            print("Empty Variable")
-        else:
-            sqlite3db.insert_varible_into_table(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13)
-            sqlite3db.insert_varible_into_table2(s8, s14)
-      
-    # Кнопка закрытия приложения
-    def close_window(self):
-        self.window.destroy()
-    
-    # # Функция, выводит на экран таблицу базы данных в отдельном окне
-    def secondWindow(self):
         # second = Toplevel(window)
         # second.title("База данных")
         self.txt_sum.delete(0, END)
         # Перед заполнение таблицы данными, удаляем предыдущие
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+        # for item in self.tree.get_children():
+        #     self.tree.delete(item)
         x_client1 = self.txt_search.get()
         y_typedoc = self.txt1.get()
         if not x_client1 and not y_typedoc:
@@ -259,7 +350,8 @@ class GrateWindow:
                 rows = cur1.fetchall()
                 con2 = sqlite3.connect("sqlite_python.db")
                 cur2 = con2.cursor()
-                cur2.execute(f'''SELECT SUM(price) FROM ProgramFin WHERE idArt=? OR client1=?''', (y_typedoc, x_client1,))
+                cur2.execute(f'''SELECT SUM(price) FROM ProgramFin WHERE idArt=? OR client1=?''',
+                             (y_typedoc, x_client1,))
                 rows2 = cur2.fetchall()
                 for row1 in rows:
                     # print(row1)
@@ -277,7 +369,8 @@ class GrateWindow:
                 rows = cur1.fetchall()
                 con2 = sqlite3.connect("sqlite_python.db")
                 cur2 = con2.cursor()
-                cur2.execute(f'''SELECT SUM(price) FROM ProgramFin WHERE idArt=? AND client1=?''', (y_typedoc, x_client1,))
+                cur2.execute(f'''SELECT SUM(price) FROM ProgramFin WHERE idArt=? AND client1=?''',
+                             (y_typedoc, x_client1,))
                 rows2 = cur2.fetchall()
                 for row1 in rows:
                     # print(row1)
@@ -293,14 +386,26 @@ class GrateWindow:
 
     # Сохранение файла xlsx и вывод на печать
     def saveExcel(self):
-        workbook = load_workbook(filename='XLSX_TO_PRINT/Table1.xlsx')
-        sheet = workbook['Sheet1']
-        sheet.delete_rows(idx=2, amount=15)
-        for row_id in self.tree.get_children():
-            row = self.tree.item(row_id)['values']
-            sheet.append(row)
-        workbook.save(filename='XLSX_TO_PRINT/Table1.xlsx')
-
+        if self.tree2 is None:
+            workbook = load_workbook(filename='XLSX_TO_PRINT/Table1.xlsx')
+            sheet = workbook['Sheet1']
+            while sheet.max_row > 1:
+                sheet.delete_rows(2)
+            # sheet.delete_rows(idx=2, amount=15)
+            for row_id in self.tree.get_children():
+                row = self.tree.item(row_id)['values']
+                sheet.append(row)
+            workbook.save(filename='XLSX_TO_PRINT/Table1.xlsx')
+        elif self.tree is None:
+            workbook = load_workbook(filename='XLSX_TO_PRINT/Table2.xlsx')
+            sheet = workbook['Sheet1']
+            while sheet.max_row > 1:
+                sheet.delete_rows(2)
+            # sheet.delete_rows(idx=2, amount=15)
+            for row_id in self.tree2.get_children():
+                row = self.tree2.item(row_id)['values']
+                sheet.append(row)
+            workbook.save(filename='XLSX_TO_PRINT/Table2.xlsx')
         file_path = filedialog.askopenfilename(title="Файл", initialdir="XLSX_TO_PRINT/",
                                                filetypes=[("Text File", '*.xlsx'), ("All files", "*.*")])
         print("Selected File:", file_path)
@@ -394,8 +499,9 @@ class GrateWindow:
 
     # Функция, запрос имени поставщика, заполняет все данные по нему из текстовых полей в формы договоров и на печать
     def workSql(self):
+
         typedoc = self.txt1.get()
-        client1 = self.txt2.get()
+        client1 = " ".join(self.txt2.get().split())
         ful_name = self.txt3.get()
         boss = self.txt4.get()
         name = self.txt5.get()
@@ -405,8 +511,9 @@ class GrateWindow:
         object2 = self.txt9.get()
         object1 = self.txt10.get()
         price = self.txt11.get()
-        city = self.txt12.get()
-        time = self.txt13.get()
+        city = " ".join(self.txt12.get().split())
+        time = " ".join(self.txt13.get().split())
+        price_text = self.numerWords()
 
         context = {'client1': client1,
                    'ful_name': ful_name,
@@ -419,7 +526,8 @@ class GrateWindow:
                    'object1': object1,
                    'price': price,
                    'city': city,
-                   "time": time
+                   "time": time,
+                   "price_text": price_text
                    }
 
         if typedoc == "Договор поставки":
@@ -448,20 +556,6 @@ class GrateWindow:
                                                    filetypes=[("Text File", '*.docx'), ("All files", "*.*")])
             print("Selected File:", file_path)
             os.startfile(file_path)
-
-    # Функция, после точного ввода имени поставщика, поиск в БД столбца и вывод строки заполением текстовых полей
-    def scrollDb(self):
-        conn = sqlite3.connect('sqlite_python.db')
-        c = conn.cursor()
-        c.execute('''SELECT client1 FROM ProgramFin''')
-        rows = c.fetchall()
-        clist1 = []
-        for row in rows:
-            clist1.append(row)
-        # print(clist1)
-        # print(len(clist1))
-        conn.close()
-        return list(set(clist1))  # способ, с помощью которого дубликаты удаляются из списка
 
 
 def main():
