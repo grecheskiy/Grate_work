@@ -32,6 +32,14 @@ class GrateWindow:
         self.frame1.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=6, pady=3)
         self.frame3 = tk.Frame(self.window, width=300, relief=tk.SUNKEN, borderwidth=1)
         self.frame3.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=6, pady=6)
+        # Стили для таблиц
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.map("Custom1.Treeview")
+        style.configure('Custom1.Treeview.Heading', background="PowderBlue")
+        style.map("Custom2.Treeview")
+        style.configure('Custom2.Treeview.Heading', background="#dad1c0")
+        style.configure('Custom2.Treeview', rowheight=50)
         # Многострочное тектовое окно
         self.l1 = Label(self.frame3, text="Добавить комментарий к договору")
         self.l1.pack(side=tk.TOP)
@@ -149,7 +157,8 @@ class GrateWindow:
             widget.destroy()
         # Отображение элементов на окне frame2
         self.tree2 = ttk.Treeview(self.frame2,
-                                  columns=("c1", "c2", "c3", "c4", "c5", "c6"), show='headings')
+                                  columns=("c1", "c2", "c3", "c4", "c5", "c6"),
+                                  show='headings', style="Custom2.Treeview")
         self.tree2.text = Entry()
         # self.tree.grid(column=0, row=0)
         self.tree2.column("#1", anchor=tk.CENTER)
@@ -168,10 +177,12 @@ class GrateWindow:
         self.tree2.pack(side=LEFT)
         for i in self.tree2['columns']:
             self.tree2.column(i, minwidth=100, width=310, stretch=NO)
-        self.tree2.config(height=28)
-        style = ttk.Style()
-        style.theme_use("default")
-        style.map("Treeview")
+        self.tree2.config(height=11)
+        # style = ttk.Style()
+        # style.theme_use("clam")
+        # style.map("Treeview")
+        # style.configure('Treeview.Heading', background="PowderBlue")
+        # style.configure('Treeview', rowheight=50)  # Расширить строку
         # Прокрутка таблицы в frame2
         scroll_y = tk.Scrollbar(self.frame2, orient=tk.VERTICAL, command=self.tree2.yview)
         scroll_y.pack(side=RIGHT, expand=True, fill="y")
@@ -196,7 +207,8 @@ class GrateWindow:
             for row2 in rows2:
                 # print(row2)
                 self.txt_sum.insert(0, row2)
-                self.tree2.insert("", tk.END, values=row2)
+                self.tree2.insert("", tk.END, tags=['t2'], values=('', '', '', 'Общая сумма:', row2))
+                self.tree2.tag_configure('t2', background='#dad1c0')
             con1.close()
             con2.close()
 
@@ -276,7 +288,8 @@ class GrateWindow:
         # Отображение элементов на окне frame2
         self.tree = ttk.Treeview(self.frame2,
                                  columns=("c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8",
-                                          "c9", "c10", "c11", "c12", "c13"), show='headings')
+                                          "c9", "c10", "c11", "c12", "c13"),
+                                 show='headings', style="Custom1.Treeview")
         self.tree.text = Entry()
         # self.tree.grid(column=0, row=0)
         self.tree.column("#1", anchor=tk.CENTER)
@@ -309,9 +322,7 @@ class GrateWindow:
         for i in self.tree['columns']:
             self.tree.column(i, minwidth=50, width=145, stretch=NO)
         self.tree.config(height=28)
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.map("Treeview")
+
         # Прокрутка таблицы в frame2
         scroll_y = tk.Scrollbar(self.frame2, orient=tk.VERTICAL, command=self.tree.yview)
         scroll_y.pack(side=RIGHT, expand=True, fill="y")
@@ -339,9 +350,13 @@ class GrateWindow:
             for row2 in rows2:
                 # print(row2)
                 self.txt_sum.insert(0, row2)
-                self.tree.insert("", tk.END, values=row2)
+                self.tree.insert("", tk.END, tags=['t1'], values=('', '', '', '', '', '', '', '', '', 'Общая сумма:', row2))
+                self.tree.tag_configure('t1', background='PowderBlue')
             con1.close()
             con2.close()
+
+            # tree.tag_configure("row2", background="red")
+            # tree.item("I001", tags=("row2",))
         else:
             if not x_client1 or not y_typedoc:
                 con1 = sqlite3.connect("sqlite_python.db")
@@ -359,7 +374,8 @@ class GrateWindow:
                 for row2 in rows2:
                     # print(row2)
                     self.txt_sum.insert(0, row2)
-                    self.tree.insert("", tk.END, values=row2)
+                    self.tree.insert("", tk.END, tags=['t1'], values=('', '', '', '', '', '', '', '', '', 'Общая сумма:', row2))
+                    self.tree.tag_configure('t1', background='PowderBlue')
                 con1.close()
                 con2.close()
             else:
@@ -378,7 +394,8 @@ class GrateWindow:
                 for row2 in rows2:
                     # print(row2)
                     self.txt_sum.insert(0, row2)
-                    self.tree.insert("", tk.END, values=row2)
+                    self.tree.insert("", tk.END, tags=['t1'], values=('', '', '', '', '', '', '', '', '', 'Общая сумма:', row2))
+                    self.tree.tag_configure('t1', background='PowderBlue')
                 con1.close()
                 con2.close()
         self.txt_search.delete(0, END)
@@ -566,4 +583,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
